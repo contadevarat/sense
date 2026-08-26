@@ -1,0 +1,59 @@
+<header class="page-header">
+  <div>
+    <h1>Endeavors</h1>
+    <p class="subtitle">Everything you're tracking, in one place.</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/endeavors/new">+ New Endeavor</a>
+</header>
+
+@if (error()) {
+  <div class="empty-state error-state">
+    <h2>Something went wrong</h2>
+    <p>{{ error() }}</p>
+  </div>
+} @else if (loading()) {
+  <div class="empty-state">
+    <p>Loading endeavors…</p>
+  </div>
+} @else if (endeavors().length === 0) {
+  <div class="empty-state">
+    <h2>No endeavors yet</h2>
+    <p>Create your first endeavor to start tracking it.</p>
+    <a class="btn btn-primary" routerLink="/endeavors/new">+ New Endeavor</a>
+  </div>
+} @else {
+  <div class="grid">
+    @for (endeavor of endeavors(); track endeavor.id) {
+      <a class="card" [routerLink]="['/endeavors', endeavor.id]">
+        <div class="card-top">
+          <span class="badge status-{{ endeavor.status }}">{{ statusLabel(endeavor.status) }}</span>
+          <span class="badge priority-{{ endeavor.priority }}">{{ endeavor.priority }}</span>
+        </div>
+        <h3>{{ endeavor.name }}</h3>
+        @if (endeavor.summary) {
+          <p class="summary">{{ endeavor.summary }}</p>
+        }
+        <div class="card-meta">
+          <span class="category">{{ categoryLabel(endeavor.category) }}</span>
+          @if (endeavor.newsMonitoringEnabled) {
+            <span class="monitoring" title="News monitoring enabled">📰 tracking news</span>
+          }
+        </div>
+        @if (endeavor.keywords.length > 0) {
+          <div class="keywords">
+            @for (keyword of endeavor.keywords; track keyword) {
+              <span class="chip">{{ keyword }}</span>
+            }
+          </div>
+        }
+        <button
+          type="button"
+          class="btn btn-danger-ghost delete-btn"
+          (click)="remove(endeavor.id, endeavor.name, $event)"
+        >
+          Delete
+        </button>
+      </a>
+    }
+  </div>
+}

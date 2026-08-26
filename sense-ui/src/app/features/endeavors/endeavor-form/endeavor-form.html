@@ -1,0 +1,120 @@
+@if (isEditMode() && loading()) {
+  <div class="empty-state">
+    <p>Loading endeavor…</p>
+  </div>
+} @else if (notFound()) {
+  <div class="empty-state">
+    <h2>Endeavor not found</h2>
+    <a class="btn btn-primary" routerLink="/endeavors">← Back to Endeavors</a>
+  </div>
+} @else {
+  <a class="back-link" routerLink="/endeavors">← Back to Endeavors</a>
+
+  <header class="page-header">
+    <h1>{{ isEditMode() ? 'Edit Endeavor' : 'New Endeavor' }}</h1>
+  </header>
+
+  <form class="panel" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field-group">
+      <label for="name">Name *</label>
+      <input id="name" type="text" formControlName="name" placeholder="e.g. Kitchen Renovation" />
+      @if (form.controls.name.invalid && form.controls.name.touched) {
+        <span class="error">Name is required (max 120 characters).</span>
+      }
+    </div>
+
+    <div class="field-group">
+      <label for="summary">Summary</label>
+      <input
+        id="summary"
+        type="text"
+        formControlName="summary"
+        placeholder="One-line description"
+      />
+    </div>
+
+    <div class="field-group">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        rows="4"
+        formControlName="description"
+        placeholder="More detail about this endeavor"
+      ></textarea>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label for="category">Category</label>
+        <select id="category" formControlName="category">
+          @for (option of categories; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="status">Status</label>
+        <select id="status" formControlName="status">
+          @for (option of statuses; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="priority">Priority</label>
+        <select id="priority" formControlName="priority">
+          @for (option of priorities; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label for="startDate">Start date</label>
+        <input id="startDate" type="date" formControlName="startDate" />
+      </div>
+
+      <div class="field-group">
+        <label for="targetDate">Target date</label>
+        <input id="targetDate" type="date" formControlName="targetDate" />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="keywords">Keywords</label>
+      <input
+        id="keywords"
+        type="text"
+        formControlName="keywords"
+        placeholder="comma, separated, terms"
+      />
+      <span class="hint">Used later to match relevant news for this endeavor.</span>
+    </div>
+
+    <div class="field-group checkbox">
+      <label>
+        <input type="checkbox" formControlName="newsMonitoringEnabled" />
+        Enable news monitoring for this endeavor
+      </label>
+    </div>
+
+    @if (saveError()) {
+      <p class="error">{{ saveError() }}</p>
+    }
+
+    <div class="form-actions">
+      <a class="btn btn-secondary" routerLink="/endeavors">Cancel</a>
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">
+        @if (saving()) {
+          Saving…
+        } @else {
+          {{ isEditMode() ? 'Save Changes' : 'Create Endeavor' }}
+        }
+      </button>
+    </div>
+  </form>
+}

@@ -1,0 +1,70 @@
+@if (endeavor(); as e) {
+  <a class="back-link" routerLink="/endeavors">← Back to Endeavors</a>
+
+  <header class="page-header">
+    <div>
+      <div class="badges">
+        <span class="badge status-{{ e.status }}">{{ statusLabel() }}</span>
+        <span class="badge priority-{{ e.priority }}">{{ e.priority }} priority</span>
+        <span class="badge category">{{ categoryLabel() }}</span>
+      </div>
+      <h1>{{ e.name }}</h1>
+      @if (e.summary) {
+        <p class="subtitle">{{ e.summary }}</p>
+      }
+    </div>
+    <div class="actions">
+      <a class="btn btn-secondary" [routerLink]="['/endeavors', e.id, 'edit']">Edit</a>
+      <button type="button" class="btn btn-danger" (click)="remove()">Delete</button>
+    </div>
+  </header>
+
+  <div class="panel">
+    @if (e.description) {
+      <section>
+        <h2>Description</h2>
+        <p class="description">{{ e.description }}</p>
+      </section>
+    }
+
+    <section class="fields">
+      <div class="field">
+        <span class="label">Start date</span>
+        <span>{{ e.startDate || '—' }}</span>
+      </div>
+      <div class="field">
+        <span class="label">Target date</span>
+        <span>{{ e.targetDate || '—' }}</span>
+      </div>
+      <div class="field">
+        <span class="label">News monitoring</span>
+        <span>{{ e.newsMonitoringEnabled ? 'Enabled' : 'Disabled' }}</span>
+      </div>
+      <div class="field">
+        <span class="label">Last updated</span>
+        <span>{{ e.updatedAt | date: 'medium' }}</span>
+      </div>
+    </section>
+
+    @if (e.keywords.length > 0) {
+      <section>
+        <h2>Keywords</h2>
+        <p class="hint">Used to match relevant news for this endeavor.</p>
+        <div class="keywords">
+          @for (keyword of e.keywords; track keyword) {
+            <span class="chip">{{ keyword }}</span>
+          }
+        </div>
+      </section>
+    }
+  </div>
+} @else if (loading()) {
+  <div class="empty-state">
+    <p>Loading endeavor…</p>
+  </div>
+} @else if (notFound()) {
+  <div class="empty-state">
+    <h2>Endeavor not found</h2>
+    <a class="btn btn-primary" routerLink="/endeavors">← Back to Endeavors</a>
+  </div>
+}
