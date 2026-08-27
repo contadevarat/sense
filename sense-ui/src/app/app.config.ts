@@ -2,6 +2,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { environment } from '../environments/environment';
+import { EndeavorFileHttpRepository } from './core/repositories/endeavor-file-http-repository';
+import { EndeavorFileRepository } from './core/repositories/endeavor-file-repository';
 import { EndeavorHttpRepository } from './core/repositories/endeavor-http-repository';
 import { EndeavorLocalRepository } from './core/repositories/endeavor-local-repository';
 import { EndeavorRepository } from './core/repositories/endeavor-repository';
@@ -17,5 +19,6 @@ export const appConfig: ApplicationConfig = {
       provide: EndeavorRepository,
       useClass: environment.apiBaseUrl ? EndeavorHttpRepository : EndeavorLocalRepository,
     },
+    { provide: EndeavorFileRepository, useClass: EndeavorFileHttpRepository },
   ],
 };

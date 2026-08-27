@@ -6,8 +6,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from config import settings
 from database import Base, engine, get_session
-from repositories import EndeavorRepository, NotFoundError, SqlEndeavorRepository
-from schemas import Endeavor, EndeavorInput
+from repositories import (
+    EndeavorFileRepository,
+    EndeavorRepository,
+    InvalidFileError,
+    NotFoundError,
+    SqlEndeavorFileRepository,
+    SqlEndeavorRepository,
+)
+from schemas import Endeavor, EndeavorFile, EndeavorFileInput, EndeavorFileUploadResult, EndeavorInput
 
 
 @asynccontextmanager
@@ -29,6 +36,10 @@ app.add_middleware(
 
 async def get_repository(session: AsyncSession = Depends(get_session)) -> EndeavorRepository:
     return SqlEndeavorRepository(session)
+
+
+async def get_file_repository(session: AsyncSession = Depends(get_session)) -> EndeavorFileRepository:
+    return SqlEndeavorFileRepository(session)
 
 
 @app.get("/endeavors", response_model=list[Endeavor])
@@ -65,3 +76,33 @@ async def delete_endeavor(id: str, repo: EndeavorRepository = Depends(get_reposi
         await repo.delete(id)
     except NotFoundError:
         raise HTTPException(status_code=404, detail="Endeavor not found")
+
+
+@app.get("/endeavors/{id}/files", response_model=list[EndeavorFile])
+async def list_endeavor_files(id: str, repo: EndeavorFileRepository = Depends(get_file_repository)):
+    try:
+        return await repo.list(id)
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="Endeavor not found")
+
+
+@app.post("/endeavors/{id}/files", response_model=EndeavorFileUploadResult, status_code=201)
+async def create_endeavor_file(
+    id: str, input: EndeavorFileInput, repo: EndeavorFileRepository = Depends(get_file_repository)
+):
+    try:
+        return await repo.create(id, input)
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="Endeavor not found")
+    except InvalidFileError as err:
+        raise HTTPException(status_code=400, detail=str(err))
+
+
+@app.delete("/endeavors/{id}/files/{file_id}", status_code=204)
+async def delete_endeavor_file(
+    id: str, file_id: str, repo: EndeavorFileRepository = Depends(get_file_repository)
+):
+    try:
+        await repo.delete(id, file_id)
+    except NotFoundError:
+        raise HTTPException(status_code=404, detail="File not found")
